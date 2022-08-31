@@ -6,11 +6,9 @@ import (
 	"log"
 	"os"
 
-	// "education/ent"
-	// "education/ent/migrate"
+	"education/ent"
+	"education/ent/migrate"
 
-	"entgo.io/ent/examples/fs/ent"
-	"entgo.io/ent/examples/fs/ent/migrate"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 )
@@ -16,11 +17,12 @@ type Upload struct {
 // Fields of the Upload.
 func (Upload) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("user_id"),
 		field.String("name").MaxLen(70),
 		field.UUID("uid", uuid.UUID{}),
 		field.String("mime_type"),
-		field.String("title"),
 		field.Int("size"),
+		field.String("title"),
 		field.Text("description"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
@@ -29,5 +31,7 @@ func (Upload) Fields() []ent.Field {
 
 // Edges of the Upload.
 func (Upload) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("user", User.Type).Required().Ref("uploads").Field("user_id").Unique(),
+	}
 }

@@ -18,12 +18,12 @@ func init() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	endpoint := "play.min.io"
-	accessKeyID := os.Getenv("accessKeyID")
-	secretAccessKey := os.Getenv("secretAccessKey")
+	endpoint := os.Getenv("MINIO_ENDPOINT")
+	accessKeyID := os.Getenv("MINIO_ACCESSKEY")
+	secretAccessKey := os.Getenv("MINIO_SECRETKEY")
 	useSSL := true
 
-	minioClient, err := minio.New(endpoint, &minio.Options{
+	MinioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
@@ -31,6 +31,6 @@ func init() {
 		log.Fatalln(err)
 	}
 
-	log.Printf("%#v\n", minioClient)
+	log.Printf("%#v\n", MinioClient)
 
 }

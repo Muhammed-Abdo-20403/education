@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"education/ent/playlist"
 	"education/ent/upload"
 	"education/ent/user"
 	"fmt"
@@ -20,6 +21,8 @@ type Upload struct {
 	ID int `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID int `json:"user_id,omitempty"`
+	// PlaylistID holds the value of the "playlist_id" field.
+	PlaylistID int `json:"playlist_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// UID holds the value of the "uid" field.
@@ -45,9 +48,11 @@ type Upload struct {
 type UploadEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// Playlist holds the value of the playlist edge.
+	Playlist *Playlist `json:"playlist,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -63,12 +68,25 @@ func (e UploadEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
+// PlaylistOrErr returns the Playlist value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UploadEdges) PlaylistOrErr() (*Playlist, error) {
+	if e.loadedTypes[1] {
+		if e.Playlist == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: playlist.Label}
+		}
+		return e.Playlist, nil
+	}
+	return nil, &NotLoadedError{edge: "playlist"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Upload) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case upload.FieldID, upload.FieldUserID, upload.FieldSize:
+		case upload.FieldID, upload.FieldUserID, upload.FieldPlaylistID, upload.FieldSize:
 			values[i] = new(sql.NullInt64)
 		case upload.FieldName, upload.FieldMimeType, upload.FieldTitle, upload.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -102,6 +120,12 @@ func (u *Upload) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
 				u.UserID = int(value.Int64)
+			}
+		case upload.FieldPlaylistID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field playlist_id", values[i])
+			} else if value.Valid {
+				u.PlaylistID = int(value.Int64)
 			}
 		case upload.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -161,6 +185,11 @@ func (u *Upload) QueryUser() *UserQuery {
 	return (&UploadClient{config: u.config}).QueryUser(u)
 }
 
+// QueryPlaylist queries the "playlist" edge of the Upload entity.
+func (u *Upload) QueryPlaylist() *PlaylistQuery {
+	return (&UploadClient{config: u.config}).QueryPlaylist(u)
+}
+
 // Update returns a builder for updating this Upload.
 // Note that you need to call Upload.Unwrap() before calling this method if this Upload
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -186,6 +215,9 @@ func (u *Upload) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", u.UserID))
+	builder.WriteString(", ")
+	builder.WriteString("playlist_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.PlaylistID))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(u.Name)

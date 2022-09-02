@@ -8,6 +8,26 @@ import (
 )
 
 var (
+	// PlaylistsColumns holds the columns for the "playlists" table.
+	PlaylistsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// PlaylistsTable holds the schema information for the "playlists" table.
+	PlaylistsTable = &schema.Table{
+		Name:       "playlists",
+		Columns:    PlaylistsColumns,
+		PrimaryKey: []*schema.Column{PlaylistsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "playlists_users_playlists",
+				Columns:    []*schema.Column{PlaylistsColumns[2]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// UploadsColumns holds the columns for the "uploads" table.
 	UploadsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -19,6 +39,7 @@ var (
 		{Name: "description", Type: field.TypeString, Size: 2147483647},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "playlist_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
 	}
 	// UploadsTable holds the schema information for the "uploads" table.
@@ -28,8 +49,14 @@ var (
 		PrimaryKey: []*schema.Column{UploadsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "uploads_users_uploads",
+				Symbol:     "uploads_playlists_uploads",
 				Columns:    []*schema.Column{UploadsColumns[9]},
+				RefColumns: []*schema.Column{PlaylistsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "uploads_users_uploads",
+				Columns:    []*schema.Column{UploadsColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -58,11 +85,14 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PlaylistsTable,
 		UploadsTable,
 		UsersTable,
 	}
 )
 
 func init() {
-	UploadsTable.ForeignKeys[0].RefTable = UsersTable
+	PlaylistsTable.ForeignKeys[0].RefTable = UsersTable
+	UploadsTable.ForeignKeys[0].RefTable = PlaylistsTable
+	UploadsTable.ForeignKeys[1].RefTable = UsersTable
 }

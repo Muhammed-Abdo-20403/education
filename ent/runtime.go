@@ -16,15 +16,15 @@ func init() {
 	uploadFields := schema.Upload{}.Fields()
 	_ = uploadFields
 	// uploadDescName is the schema descriptor for name field.
-	uploadDescName := uploadFields[1].Descriptor()
+	uploadDescName := uploadFields[2].Descriptor()
 	// upload.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	upload.NameValidator = uploadDescName.Validators[0].(func(string) error)
 	// uploadDescCreatedAt is the schema descriptor for created_at field.
-	uploadDescCreatedAt := uploadFields[7].Descriptor()
+	uploadDescCreatedAt := uploadFields[8].Descriptor()
 	// upload.DefaultCreatedAt holds the default value on creation for the created_at field.
 	upload.DefaultCreatedAt = uploadDescCreatedAt.Default.(func() time.Time)
 	// uploadDescUpdatedAt is the schema descriptor for updated_at field.
-	uploadDescUpdatedAt := uploadFields[8].Descriptor()
+	uploadDescUpdatedAt := uploadFields[9].Descriptor()
 	// upload.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	upload.DefaultUpdatedAt = uploadDescUpdatedAt.Default.(func() time.Time)
 	// upload.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

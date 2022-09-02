@@ -18,6 +18,7 @@ type Upload struct {
 func (Upload) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("user_id"),
+		field.Int("playlist_id"),
 		field.String("name").MaxLen(70),
 		field.UUID("uid", uuid.UUID{}),
 		field.String("mime_type"),
@@ -33,5 +34,6 @@ func (Upload) Fields() []ent.Field {
 func (Upload) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).Required().Ref("uploads").Field("user_id").Unique(),
+		edge.From("playlist", Playlist.Type).Field("playlist_id").Required().Ref("uploads").Unique(),
 	}
 }

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"education/ent/playlist"
 	"education/ent/upload"
 	"education/ent/user"
 	"errors"
@@ -25,6 +26,12 @@ type UploadCreate struct {
 // SetUserID sets the "user_id" field.
 func (uc *UploadCreate) SetUserID(i int) *UploadCreate {
 	uc.mutation.SetUserID(i)
+	return uc
+}
+
+// SetPlaylistID sets the "playlist_id" field.
+func (uc *UploadCreate) SetPlaylistID(i int) *UploadCreate {
+	uc.mutation.SetPlaylistID(i)
 	return uc
 }
 
@@ -95,6 +102,11 @@ func (uc *UploadCreate) SetNillableUpdatedAt(t *time.Time) *UploadCreate {
 // SetUser sets the "user" edge to the User entity.
 func (uc *UploadCreate) SetUser(u *User) *UploadCreate {
 	return uc.SetUserID(u.ID)
+}
+
+// SetPlaylist sets the "playlist" edge to the Playlist entity.
+func (uc *UploadCreate) SetPlaylist(p *Playlist) *UploadCreate {
+	return uc.SetPlaylistID(p.ID)
 }
 
 // Mutation returns the UploadMutation object of the builder.
@@ -189,6 +201,9 @@ func (uc *UploadCreate) check() error {
 	if _, ok := uc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Upload.user_id"`)}
 	}
+	if _, ok := uc.mutation.PlaylistID(); !ok {
+		return &ValidationError{Name: "playlist_id", err: errors.New(`ent: missing required field "Upload.playlist_id"`)}
+	}
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Upload.name"`)}
 	}
@@ -220,6 +235,9 @@ func (uc *UploadCreate) check() error {
 	}
 	if _, ok := uc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Upload.user"`)}
+	}
+	if _, ok := uc.mutation.PlaylistID(); !ok {
+		return &ValidationError{Name: "playlist", err: errors.New(`ent: missing required edge "Upload.playlist"`)}
 	}
 	return nil
 }
@@ -330,6 +348,26 @@ func (uc *UploadCreate) createSpec() (*Upload, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.PlaylistIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   upload.PlaylistTable,
+			Columns: []string{upload.PlaylistColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: playlist.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.PlaylistID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

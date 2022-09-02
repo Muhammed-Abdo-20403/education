@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"education/ent/playlist"
 	"education/ent/upload"
 	"education/ent/user"
 	"errors"
@@ -148,6 +149,21 @@ func (uc *UserCreate) AddUploads(u ...*Upload) *UserCreate {
 		ids[i] = u[i].ID
 	}
 	return uc.AddUploadIDs(ids...)
+}
+
+// AddPlaylistIDs adds the "playlists" edge to the Playlist entity by IDs.
+func (uc *UserCreate) AddPlaylistIDs(ids ...int) *UserCreate {
+	uc.mutation.AddPlaylistIDs(ids...)
+	return uc
+}
+
+// AddPlaylists adds the "playlists" edges to the Playlist entity.
+func (uc *UserCreate) AddPlaylists(p ...*Playlist) *UserCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddPlaylistIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -406,6 +422,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: upload.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.PlaylistsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PlaylistsTable,
+			Columns: []string{user.PlaylistsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: playlist.FieldID,
 				},
 			},
 		}

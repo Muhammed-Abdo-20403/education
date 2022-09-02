@@ -8,6 +8,19 @@ import (
 	"fmt"
 )
 
+// The PlaylistFunc type is an adapter to allow the use of ordinary
+// function as Playlist mutator.
+type PlaylistFunc func(context.Context, *ent.PlaylistMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PlaylistFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.PlaylistMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PlaylistMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The UploadFunc type is an adapter to allow the use of ordinary
 // function as Upload mutator.
 type UploadFunc func(context.Context, *ent.UploadMutation) (ent.Value, error)

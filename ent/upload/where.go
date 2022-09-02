@@ -89,6 +89,13 @@ func UserID(v int) predicate.Upload {
 	})
 }
 
+// PlaylistID applies equality check predicate on the "playlist_id" field. It's identical to PlaylistIDEQ.
+func PlaylistID(v int) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlaylistID), v))
+	})
+}
+
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
@@ -178,6 +185,42 @@ func UserIDNotIn(vs ...int) predicate.Upload {
 	}
 	return predicate.Upload(func(s *sql.Selector) {
 		s.Where(sql.NotIn(s.C(FieldUserID), v...))
+	})
+}
+
+// PlaylistIDEQ applies the EQ predicate on the "playlist_id" field.
+func PlaylistIDEQ(v int) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlaylistID), v))
+	})
+}
+
+// PlaylistIDNEQ applies the NEQ predicate on the "playlist_id" field.
+func PlaylistIDNEQ(v int) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPlaylistID), v))
+	})
+}
+
+// PlaylistIDIn applies the In predicate on the "playlist_id" field.
+func PlaylistIDIn(vs ...int) predicate.Upload {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldPlaylistID), v...))
+	})
+}
+
+// PlaylistIDNotIn applies the NotIn predicate on the "playlist_id" field.
+func PlaylistIDNotIn(vs ...int) predicate.Upload {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldPlaylistID), v...))
 	})
 }
 
@@ -852,6 +895,34 @@ func HasUserWith(preds ...predicate.User) predicate.Upload {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(UserInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasPlaylist applies the HasEdge predicate on the "playlist" edge.
+func HasPlaylist() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PlaylistTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PlaylistTable, PlaylistColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPlaylistWith applies the HasEdge predicate on the "playlist" edge with a given conditions (other predicates).
+func HasPlaylistWith(preds ...predicate.Playlist) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PlaylistInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PlaylistTable, PlaylistColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

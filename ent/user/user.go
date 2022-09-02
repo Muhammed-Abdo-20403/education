@@ -35,6 +35,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeUploads holds the string denoting the uploads edge name in mutations.
 	EdgeUploads = "uploads"
+	// EdgePlaylists holds the string denoting the playlists edge name in mutations.
+	EdgePlaylists = "playlists"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// UploadsTable is the table that holds the uploads relation/edge.
@@ -44,6 +46,13 @@ const (
 	UploadsInverseTable = "uploads"
 	// UploadsColumn is the table column denoting the uploads relation/edge.
 	UploadsColumn = "user_id"
+	// PlaylistsTable is the table that holds the playlists relation/edge.
+	PlaylistsTable = "playlists"
+	// PlaylistsInverseTable is the table name for the Playlist entity.
+	// It exists in this package in order to avoid circular dependency with the "playlist" package.
+	PlaylistsInverseTable = "playlists"
+	// PlaylistsColumn is the table column denoting the playlists relation/edge.
+	PlaylistsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.

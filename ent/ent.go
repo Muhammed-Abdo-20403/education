@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"education/ent/playlist"
 	"education/ent/upload"
 	"education/ent/user"
 	"errors"
@@ -32,8 +33,9 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		upload.Table: upload.ValidColumn,
-		user.Table:   user.ValidColumn,
+		playlist.Table: playlist.ValidColumn,
+		upload.Table:   upload.ValidColumn,
+		user.Table:     user.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

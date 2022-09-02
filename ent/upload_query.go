@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"education/ent/playlist"
 	"education/ent/predicate"
 	"education/ent/upload"
 	"education/ent/user"
@@ -18,13 +19,14 @@ import (
 // UploadQuery is the builder for querying Upload entities.
 type UploadQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Upload
-	withUser   *UserQuery
+	limit        *int
+	offset       *int
+	unique       *bool
+	order        []OrderFunc
+	fields       []string
+	predicates   []predicate.Upload
+	withUser     *UserQuery
+	withPlaylist *PlaylistQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +78,28 @@ func (uq *UploadQuery) QueryUser() *UserQuery {
 			sqlgraph.From(upload.Table, upload.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, upload.UserTable, upload.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPlaylist chains the current query on the "playlist" edge.
+func (uq *UploadQuery) QueryPlaylist() *PlaylistQuery {
+	query := &PlaylistQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(upload.Table, upload.FieldID, selector),
+			sqlgraph.To(playlist.Table, playlist.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, upload.PlaylistTable, upload.PlaylistColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -259,12 +283,13 @@ func (uq *UploadQuery) Clone() *UploadQuery {
 		return nil
 	}
 	return &UploadQuery{
-		config:     uq.config,
-		limit:      uq.limit,
-		offset:     uq.offset,
-		order:      append([]OrderFunc{}, uq.order...),
-		predicates: append([]predicate.Upload{}, uq.predicates...),
-		withUser:   uq.withUser.Clone(),
+		config:       uq.config,
+		limit:        uq.limit,
+		offset:       uq.offset,
+		order:        append([]OrderFunc{}, uq.order...),
+		predicates:   append([]predicate.Upload{}, uq.predicates...),
+		withUser:     uq.withUser.Clone(),
+		withPlaylist: uq.withPlaylist.Clone(),
 		// clone intermediate query.
 		sql:    uq.sql.Clone(),
 		path:   uq.path,
@@ -280,6 +305,17 @@ func (uq *UploadQuery) WithUser(opts ...func(*UserQuery)) *UploadQuery {
 		opt(query)
 	}
 	uq.withUser = query
+	return uq
+}
+
+// WithPlaylist tells the query-builder to eager-load the nodes that are connected to
+// the "playlist" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UploadQuery) WithPlaylist(opts ...func(*PlaylistQuery)) *UploadQuery {
+	query := &PlaylistQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withPlaylist = query
 	return uq
 }
 
@@ -351,8 +387,9 @@ func (uq *UploadQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Uploa
 	var (
 		nodes       = []*Upload{}
 		_spec       = uq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			uq.withUser != nil,
+			uq.withPlaylist != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -379,6 +416,12 @@ func (uq *UploadQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Uploa
 			return nil, err
 		}
 	}
+	if query := uq.withPlaylist; query != nil {
+		if err := uq.loadPlaylist(ctx, query, nodes, nil,
+			func(n *Upload, e *Playlist) { n.Edges.Playlist = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -401,6 +444,32 @@ func (uq *UploadQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (uq *UploadQuery) loadPlaylist(ctx context.Context, query *PlaylistQuery, nodes []*Upload, init func(*Upload), assign func(*Upload, *Playlist)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Upload)
+	for i := range nodes {
+		fk := nodes[i].PlaylistID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	query.Where(playlist.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "playlist_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

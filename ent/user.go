@@ -47,9 +47,11 @@ type User struct {
 type UserEdges struct {
 	// Uploads holds the value of the uploads edge.
 	Uploads []*Upload `json:"uploads,omitempty"`
+	// Playlists holds the value of the playlists edge.
+	Playlists []*Playlist `json:"playlists,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UploadsOrErr returns the Uploads value or an error if the edge
@@ -59,6 +61,15 @@ func (e UserEdges) UploadsOrErr() ([]*Upload, error) {
 		return e.Uploads, nil
 	}
 	return nil, &NotLoadedError{edge: "uploads"}
+}
+
+// PlaylistsOrErr returns the Playlists value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PlaylistsOrErr() ([]*Playlist, error) {
+	if e.loadedTypes[1] {
+		return e.Playlists, nil
+	}
+	return nil, &NotLoadedError{edge: "playlists"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -167,6 +178,11 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 // QueryUploads queries the "uploads" edge of the User entity.
 func (u *User) QueryUploads() *UploadQuery {
 	return (&UserClient{config: u.config}).QueryUploads(u)
+}
+
+// QueryPlaylists queries the "playlists" edge of the User entity.
+func (u *User) QueryPlaylists() *PlaylistQuery {
+	return (&UserClient{config: u.config}).QueryPlaylists(u)
 }
 
 // Update returns a builder for updating this User.

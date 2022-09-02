@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"education/ent/playlist"
 	"education/ent/predicate"
 	"education/ent/upload"
 	"education/ent/user"
@@ -33,6 +34,12 @@ func (uu *UploadUpdate) Where(ps ...predicate.Upload) *UploadUpdate {
 // SetUserID sets the "user_id" field.
 func (uu *UploadUpdate) SetUserID(i int) *UploadUpdate {
 	uu.mutation.SetUserID(i)
+	return uu
+}
+
+// SetPlaylistID sets the "playlist_id" field.
+func (uu *UploadUpdate) SetPlaylistID(i int) *UploadUpdate {
+	uu.mutation.SetPlaylistID(i)
 	return uu
 }
 
@@ -90,6 +97,11 @@ func (uu *UploadUpdate) SetUser(u *User) *UploadUpdate {
 	return uu.SetUserID(u.ID)
 }
 
+// SetPlaylist sets the "playlist" edge to the Playlist entity.
+func (uu *UploadUpdate) SetPlaylist(p *Playlist) *UploadUpdate {
+	return uu.SetPlaylistID(p.ID)
+}
+
 // Mutation returns the UploadMutation object of the builder.
 func (uu *UploadUpdate) Mutation() *UploadMutation {
 	return uu.mutation
@@ -98,6 +110,12 @@ func (uu *UploadUpdate) Mutation() *UploadMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (uu *UploadUpdate) ClearUser() *UploadUpdate {
 	uu.mutation.ClearUser()
+	return uu
+}
+
+// ClearPlaylist clears the "playlist" edge to the Playlist entity.
+func (uu *UploadUpdate) ClearPlaylist() *UploadUpdate {
+	uu.mutation.ClearPlaylist()
 	return uu
 }
 
@@ -179,6 +197,9 @@ func (uu *UploadUpdate) check() error {
 	}
 	if _, ok := uu.mutation.UserID(); uu.mutation.UserCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Upload.user"`)
+	}
+	if _, ok := uu.mutation.PlaylistID(); uu.mutation.PlaylistCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Upload.playlist"`)
 	}
 	return nil
 }
@@ -292,6 +313,41 @@ func (uu *UploadUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.PlaylistCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   upload.PlaylistTable,
+			Columns: []string{upload.PlaylistColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: playlist.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.PlaylistIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   upload.PlaylistTable,
+			Columns: []string{upload.PlaylistColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: playlist.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{upload.Label}
@@ -314,6 +370,12 @@ type UploadUpdateOne struct {
 // SetUserID sets the "user_id" field.
 func (uuo *UploadUpdateOne) SetUserID(i int) *UploadUpdateOne {
 	uuo.mutation.SetUserID(i)
+	return uuo
+}
+
+// SetPlaylistID sets the "playlist_id" field.
+func (uuo *UploadUpdateOne) SetPlaylistID(i int) *UploadUpdateOne {
+	uuo.mutation.SetPlaylistID(i)
 	return uuo
 }
 
@@ -371,6 +433,11 @@ func (uuo *UploadUpdateOne) SetUser(u *User) *UploadUpdateOne {
 	return uuo.SetUserID(u.ID)
 }
 
+// SetPlaylist sets the "playlist" edge to the Playlist entity.
+func (uuo *UploadUpdateOne) SetPlaylist(p *Playlist) *UploadUpdateOne {
+	return uuo.SetPlaylistID(p.ID)
+}
+
 // Mutation returns the UploadMutation object of the builder.
 func (uuo *UploadUpdateOne) Mutation() *UploadMutation {
 	return uuo.mutation
@@ -379,6 +446,12 @@ func (uuo *UploadUpdateOne) Mutation() *UploadMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (uuo *UploadUpdateOne) ClearUser() *UploadUpdateOne {
 	uuo.mutation.ClearUser()
+	return uuo
+}
+
+// ClearPlaylist clears the "playlist" edge to the Playlist entity.
+func (uuo *UploadUpdateOne) ClearPlaylist() *UploadUpdateOne {
+	uuo.mutation.ClearPlaylist()
 	return uuo
 }
 
@@ -473,6 +546,9 @@ func (uuo *UploadUpdateOne) check() error {
 	}
 	if _, ok := uuo.mutation.UserID(); uuo.mutation.UserCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Upload.user"`)
+	}
+	if _, ok := uuo.mutation.PlaylistID(); uuo.mutation.PlaylistCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Upload.playlist"`)
 	}
 	return nil
 }
@@ -595,6 +671,41 @@ func (uuo *UploadUpdateOne) sqlSave(ctx context.Context) (_node *Upload, err err
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.PlaylistCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   upload.PlaylistTable,
+			Columns: []string{upload.PlaylistColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: playlist.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.PlaylistIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   upload.PlaylistTable,
+			Columns: []string{upload.PlaylistColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: playlist.FieldID,
 				},
 			},
 		}

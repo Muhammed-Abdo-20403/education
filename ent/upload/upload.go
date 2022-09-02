@@ -13,6 +13,8 @@ const (
 	FieldID = "id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldPlaylistID holds the string denoting the playlist_id field in the database.
+	FieldPlaylistID = "playlist_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldUID holds the string denoting the uid field in the database.
@@ -31,6 +33,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgePlaylist holds the string denoting the playlist edge name in mutations.
+	EdgePlaylist = "playlist"
 	// Table holds the table name of the upload in the database.
 	Table = "uploads"
 	// UserTable is the table that holds the user relation/edge.
@@ -40,12 +44,20 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// PlaylistTable is the table that holds the playlist relation/edge.
+	PlaylistTable = "uploads"
+	// PlaylistInverseTable is the table name for the Playlist entity.
+	// It exists in this package in order to avoid circular dependency with the "playlist" package.
+	PlaylistInverseTable = "playlists"
+	// PlaylistColumn is the table column denoting the playlist relation/edge.
+	PlaylistColumn = "playlist_id"
 )
 
 // Columns holds all SQL columns for upload fields.
 var Columns = []string{
 	FieldID,
 	FieldUserID,
+	FieldPlaylistID,
 	FieldName,
 	FieldUID,
 	FieldMimeType,

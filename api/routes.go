@@ -1,6 +1,7 @@
 package api
 
 import (
+	playlistController "education/api/playlist_controller"
 	uploadController "education/api/upload_controller"
 	userController "education/api/user_controller"
 
@@ -25,5 +26,14 @@ func RoutesPool(router *gin.Engine) {
 		uploads.PUT("/:id", uploadController.EditUpload)
 		uploads.GET("/:id", uploadController.GetUpload)
 		uploads.DELETE("/:id", uploadController.DeleteUpload)
+	}
+
+	playlists := router.Group("/playlists")
+	{
+		playlists.GET("", playlistController.GetPlaylists)
+		playlists.POST("", playlistController.CreatePlaylist)
+		playlists.PUT("/:id", playlistController.EditPlaylist)
+		playlists.GET("/:id", playlistController.GetPlaylist)
+		playlists.DELETE("/:id", playlistController.DeletePlaylist)
 	}
 }

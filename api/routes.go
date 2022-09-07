@@ -7,8 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RoutesPool(c *gin.Engine) {
-	router := gin.Default()
+func RoutesPool(router *gin.Engine) {
 
 	users := router.Group("/users")
 	{

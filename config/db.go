@@ -32,7 +32,7 @@ func init() {
 
 	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", DbUser, DbPassword, DbHost, DbPort, DbName)
 
-	client, err := ent.Open(Dbdriver, DBURL)
+	Client, err = ent.Open(Dbdriver, DBURL)
 
 	if err != nil {
 		log.Fatalf("failed connecting to mysql: %v", err)
@@ -40,7 +40,7 @@ func init() {
 
 	ctx := context.Background()
 
-	err = client.Schema.Create(
+	err = Client.Schema.Create(
 		ctx,
 		migrate.WithDropIndex(true),
 		migrate.WithDropColumn(true),

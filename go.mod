@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	entgo.io/ent v0.11.2
+	github.com/aofei/air v0.22.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.3.0

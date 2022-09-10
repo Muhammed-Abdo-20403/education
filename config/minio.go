@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -19,6 +20,7 @@ func init() {
 	}
 
 	endpoint := os.Getenv("MINIO_ENDPOINT")
+	bucketName := os.Getenv("MINIO_BUCKET")
 	accessKeyID := os.Getenv("MINIO_ACCESSKEY")
 	secretAccessKey := os.Getenv("MINIO_SECRETKEY")
 	useSSL := true
@@ -27,10 +29,20 @@ func init() {
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Printf("%#v\n", MinioClient)
+	if err != nil {
+		exists, err := MinioClient.BucketExists(context.Background(), bucketName)
 
+		if err == nil && exists {
+			log.Printf("We already own %s\n", bucketName)
+		} else {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Printf("Successfully created %s\n", bucketName)
+	}
 }

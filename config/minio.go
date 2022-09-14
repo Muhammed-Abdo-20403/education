@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -11,7 +10,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-var minioClient *minio.Client
+var MinioClient *minio.Client
 
 func init() {
 
@@ -23,12 +22,11 @@ func init() {
 	}
 
 	endpoint := os.Getenv("MINIO_ENDPOINT")
-	bucketName := os.Getenv("MINIO_BUCKET")
 	accessKeyID := os.Getenv("MINIO_ACCESSKEY")
 	secretAccessKey := os.Getenv("MINIO_SECRETKEY")
 	useSSL := false
 
-	minioClient, err = minio.New(endpoint, &minio.Options{
+	MinioClient, err = minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
@@ -39,34 +37,4 @@ func init() {
 		fmt.Println("--------------------------------------------")
 		log.Fatalln(err)
 	}
-
-	// mimeType := "application/vnd.oasis.opendocument.text"
-	file, err := os.Open("/home/mohammed/Desktop/education/public/haj.odt")
-
-	if err != nil {
-		fmt.Println("-------------222222-------------------------------")
-		fmt.Println(err.Error())
-		fmt.Println("--------------------------------------------")
-		return
-	}
-	defer file.Close()
-
-	fileStat, err := file.Stat()
-	if err != nil {
-		fmt.Println("-------------33333333333-------------------------------")
-		fmt.Println(err.Error())
-		fmt.Println("--------------------------------------------")
-		return
-	}
-
-	upload, err := minioClient.PutObject(context.Background(), bucketName, "Hag", file, fileStat.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream"})
-
-	if err != nil {
-		fmt.Println("-----------------44444444444444444444---------------------------")
-		fmt.Println(err.Error(), upload.Location)
-		fmt.Println("--------------------------------------------")
-		return
-	}
-	fmt.Println("Successfully uploaded bytes: ", upload)
-
 }

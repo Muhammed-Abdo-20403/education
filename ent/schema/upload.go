@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // Upload holds the schema definition for the Upload entity.
@@ -20,11 +19,11 @@ func (Upload) Fields() []ent.Field {
 		field.Int("user_id"),
 		field.Int("playlist_id"),
 		field.String("name").MaxLen(70),
-		field.UUID("uid", uuid.UUID{}),
+		field.String("uuid"),
 		field.String("mime_type"),
-		field.Int("size"),
-		field.String("title"),
-		field.Text("description"),
+		field.Int("size").Optional(),
+		field.String("title").Optional(),
+		field.Text("description").Optional(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}

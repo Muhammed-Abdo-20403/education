@@ -13,7 +13,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // UploadCreate is the builder for creating a Upload entity.
@@ -41,9 +40,9 @@ func (uc *UploadCreate) SetName(s string) *UploadCreate {
 	return uc
 }
 
-// SetUID sets the "uid" field.
-func (uc *UploadCreate) SetUID(u uuid.UUID) *UploadCreate {
-	uc.mutation.SetUID(u)
+// SetUUID sets the "uuid" field.
+func (uc *UploadCreate) SetUUID(s string) *UploadCreate {
+	uc.mutation.SetUUID(s)
 	return uc
 }
 
@@ -59,15 +58,39 @@ func (uc *UploadCreate) SetSize(i int) *UploadCreate {
 	return uc
 }
 
+// SetNillableSize sets the "size" field if the given value is not nil.
+func (uc *UploadCreate) SetNillableSize(i *int) *UploadCreate {
+	if i != nil {
+		uc.SetSize(*i)
+	}
+	return uc
+}
+
 // SetTitle sets the "title" field.
 func (uc *UploadCreate) SetTitle(s string) *UploadCreate {
 	uc.mutation.SetTitle(s)
 	return uc
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (uc *UploadCreate) SetNillableTitle(s *string) *UploadCreate {
+	if s != nil {
+		uc.SetTitle(*s)
+	}
+	return uc
+}
+
 // SetDescription sets the "description" field.
 func (uc *UploadCreate) SetDescription(s string) *UploadCreate {
 	uc.mutation.SetDescription(s)
+	return uc
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (uc *UploadCreate) SetNillableDescription(s *string) *UploadCreate {
+	if s != nil {
+		uc.SetDescription(*s)
+	}
 	return uc
 }
 
@@ -212,20 +235,11 @@ func (uc *UploadCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Upload.name": %w`, err)}
 		}
 	}
-	if _, ok := uc.mutation.UID(); !ok {
-		return &ValidationError{Name: "uid", err: errors.New(`ent: missing required field "Upload.uid"`)}
+	if _, ok := uc.mutation.UUID(); !ok {
+		return &ValidationError{Name: "uuid", err: errors.New(`ent: missing required field "Upload.uuid"`)}
 	}
 	if _, ok := uc.mutation.MimeType(); !ok {
 		return &ValidationError{Name: "mime_type", err: errors.New(`ent: missing required field "Upload.mime_type"`)}
-	}
-	if _, ok := uc.mutation.Size(); !ok {
-		return &ValidationError{Name: "size", err: errors.New(`ent: missing required field "Upload.size"`)}
-	}
-	if _, ok := uc.mutation.Title(); !ok {
-		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Upload.title"`)}
-	}
-	if _, ok := uc.mutation.Description(); !ok {
-		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Upload.description"`)}
 	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Upload.created_at"`)}
@@ -274,13 +288,13 @@ func (uc *UploadCreate) createSpec() (*Upload, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
-	if value, ok := uc.mutation.UID(); ok {
+	if value, ok := uc.mutation.UUID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: upload.FieldUID,
+			Column: upload.FieldUUID,
 		})
-		_node.UID = value
+		_node.UUID = value
 	}
 	if value, ok := uc.mutation.MimeType(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

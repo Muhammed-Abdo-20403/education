@@ -13,8 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
-
 	"entgo.io/ent"
 )
 
@@ -545,7 +543,7 @@ type UploadMutation struct {
 	typ             string
 	id              *int
 	name            *string
-	uid             *uuid.UUID
+	uuid            *string
 	mime_type       *string
 	size            *int
 	addsize         *int
@@ -769,40 +767,40 @@ func (m *UploadMutation) ResetName() {
 	m.name = nil
 }
 
-// SetUID sets the "uid" field.
-func (m *UploadMutation) SetUID(u uuid.UUID) {
-	m.uid = &u
+// SetUUID sets the "uuid" field.
+func (m *UploadMutation) SetUUID(s string) {
+	m.uuid = &s
 }
 
-// UID returns the value of the "uid" field in the mutation.
-func (m *UploadMutation) UID() (r uuid.UUID, exists bool) {
-	v := m.uid
+// UUID returns the value of the "uuid" field in the mutation.
+func (m *UploadMutation) UUID() (r string, exists bool) {
+	v := m.uuid
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUID returns the old "uid" field's value of the Upload entity.
+// OldUUID returns the old "uuid" field's value of the Upload entity.
 // If the Upload object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UploadMutation) OldUID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *UploadMutation) OldUUID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUID is only allowed on UpdateOne operations")
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUID requires an ID field in the mutation")
+		return v, errors.New("OldUUID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUID: %w", err)
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
 	}
-	return oldValue.UID, nil
+	return oldValue.UUID, nil
 }
 
-// ResetUID resets all changes to the "uid" field.
-func (m *UploadMutation) ResetUID() {
-	m.uid = nil
+// ResetUUID resets all changes to the "uuid" field.
+func (m *UploadMutation) ResetUUID() {
+	m.uuid = nil
 }
 
 // SetMimeType sets the "mime_type" field.
@@ -891,10 +889,24 @@ func (m *UploadMutation) AddedSize() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearSize clears the value of the "size" field.
+func (m *UploadMutation) ClearSize() {
+	m.size = nil
+	m.addsize = nil
+	m.clearedFields[upload.FieldSize] = struct{}{}
+}
+
+// SizeCleared returns if the "size" field was cleared in this mutation.
+func (m *UploadMutation) SizeCleared() bool {
+	_, ok := m.clearedFields[upload.FieldSize]
+	return ok
+}
+
 // ResetSize resets all changes to the "size" field.
 func (m *UploadMutation) ResetSize() {
 	m.size = nil
 	m.addsize = nil
+	delete(m.clearedFields, upload.FieldSize)
 }
 
 // SetTitle sets the "title" field.
@@ -928,9 +940,22 @@ func (m *UploadMutation) OldTitle(ctx context.Context) (v string, err error) {
 	return oldValue.Title, nil
 }
 
+// ClearTitle clears the value of the "title" field.
+func (m *UploadMutation) ClearTitle() {
+	m.title = nil
+	m.clearedFields[upload.FieldTitle] = struct{}{}
+}
+
+// TitleCleared returns if the "title" field was cleared in this mutation.
+func (m *UploadMutation) TitleCleared() bool {
+	_, ok := m.clearedFields[upload.FieldTitle]
+	return ok
+}
+
 // ResetTitle resets all changes to the "title" field.
 func (m *UploadMutation) ResetTitle() {
 	m.title = nil
+	delete(m.clearedFields, upload.FieldTitle)
 }
 
 // SetDescription sets the "description" field.
@@ -964,9 +989,22 @@ func (m *UploadMutation) OldDescription(ctx context.Context) (v string, err erro
 	return oldValue.Description, nil
 }
 
+// ClearDescription clears the value of the "description" field.
+func (m *UploadMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[upload.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *UploadMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[upload.FieldDescription]
+	return ok
+}
+
 // ResetDescription resets all changes to the "description" field.
 func (m *UploadMutation) ResetDescription() {
 	m.description = nil
+	delete(m.clearedFields, upload.FieldDescription)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -1122,8 +1160,8 @@ func (m *UploadMutation) Fields() []string {
 	if m.name != nil {
 		fields = append(fields, upload.FieldName)
 	}
-	if m.uid != nil {
-		fields = append(fields, upload.FieldUID)
+	if m.uuid != nil {
+		fields = append(fields, upload.FieldUUID)
 	}
 	if m.mime_type != nil {
 		fields = append(fields, upload.FieldMimeType)
@@ -1157,8 +1195,8 @@ func (m *UploadMutation) Field(name string) (ent.Value, bool) {
 		return m.PlaylistID()
 	case upload.FieldName:
 		return m.Name()
-	case upload.FieldUID:
-		return m.UID()
+	case upload.FieldUUID:
+		return m.UUID()
 	case upload.FieldMimeType:
 		return m.MimeType()
 	case upload.FieldSize:
@@ -1186,8 +1224,8 @@ func (m *UploadMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldPlaylistID(ctx)
 	case upload.FieldName:
 		return m.OldName(ctx)
-	case upload.FieldUID:
-		return m.OldUID(ctx)
+	case upload.FieldUUID:
+		return m.OldUUID(ctx)
 	case upload.FieldMimeType:
 		return m.OldMimeType(ctx)
 	case upload.FieldSize:
@@ -1230,12 +1268,12 @@ func (m *UploadMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case upload.FieldUID:
-		v, ok := value.(uuid.UUID)
+	case upload.FieldUUID:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUID(v)
+		m.SetUUID(v)
 		return nil
 	case upload.FieldMimeType:
 		v, ok := value.(string)
@@ -1323,7 +1361,17 @@ func (m *UploadMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UploadMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(upload.FieldSize) {
+		fields = append(fields, upload.FieldSize)
+	}
+	if m.FieldCleared(upload.FieldTitle) {
+		fields = append(fields, upload.FieldTitle)
+	}
+	if m.FieldCleared(upload.FieldDescription) {
+		fields = append(fields, upload.FieldDescription)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1336,6 +1384,17 @@ func (m *UploadMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UploadMutation) ClearField(name string) error {
+	switch name {
+	case upload.FieldSize:
+		m.ClearSize()
+		return nil
+	case upload.FieldTitle:
+		m.ClearTitle()
+		return nil
+	case upload.FieldDescription:
+		m.ClearDescription()
+		return nil
+	}
 	return fmt.Errorf("unknown Upload nullable field %s", name)
 }
 
@@ -1352,8 +1411,8 @@ func (m *UploadMutation) ResetField(name string) error {
 	case upload.FieldName:
 		m.ResetName()
 		return nil
-	case upload.FieldUID:
-		m.ResetUID()
+	case upload.FieldUUID:
+		m.ResetUUID()
 		return nil
 	case upload.FieldMimeType:
 		m.ResetMimeType()

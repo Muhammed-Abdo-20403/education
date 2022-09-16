@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // Upload is the model entity for the Upload schema.
@@ -25,8 +24,8 @@ type Upload struct {
 	PlaylistID int `json:"playlist_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// UID holds the value of the "uid" field.
-	UID uuid.UUID `json:"uid,omitempty"`
+	// UUID holds the value of the "uuid" field.
+	UUID string `json:"uuid,omitempty"`
 	// MimeType holds the value of the "mime_type" field.
 	MimeType string `json:"mime_type,omitempty"`
 	// Size holds the value of the "size" field.
@@ -88,12 +87,10 @@ func (*Upload) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case upload.FieldID, upload.FieldUserID, upload.FieldPlaylistID, upload.FieldSize:
 			values[i] = new(sql.NullInt64)
-		case upload.FieldName, upload.FieldMimeType, upload.FieldTitle, upload.FieldDescription:
+		case upload.FieldName, upload.FieldUUID, upload.FieldMimeType, upload.FieldTitle, upload.FieldDescription:
 			values[i] = new(sql.NullString)
 		case upload.FieldCreatedAt, upload.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case upload.FieldUID:
-			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Upload", columns[i])
 		}
@@ -133,11 +130,11 @@ func (u *Upload) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.Name = value.String
 			}
-		case upload.FieldUID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field uid", values[i])
-			} else if value != nil {
-				u.UID = *value
+		case upload.FieldUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field uuid", values[i])
+			} else if value.Valid {
+				u.UUID = value.String
 			}
 		case upload.FieldMimeType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -222,8 +219,8 @@ func (u *Upload) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(u.Name)
 	builder.WriteString(", ")
-	builder.WriteString("uid=")
-	builder.WriteString(fmt.Sprintf("%v", u.UID))
+	builder.WriteString("uuid=")
+	builder.WriteString(u.UUID)
 	builder.WriteString(", ")
 	builder.WriteString("mime_type=")
 	builder.WriteString(u.MimeType)

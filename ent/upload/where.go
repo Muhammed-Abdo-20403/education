@@ -8,7 +8,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -103,10 +102,10 @@ func Name(v string) predicate.Upload {
 	})
 }
 
-// UID applies equality check predicate on the "uid" field. It's identical to UIDEQ.
-func UID(v uuid.UUID) predicate.Upload {
+// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
+func UUID(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUID), v))
+		s.Where(sql.EQ(s.C(FieldUUID), v))
 	})
 }
 
@@ -323,67 +322,102 @@ func NameContainsFold(v string) predicate.Upload {
 	})
 }
 
-// UIDEQ applies the EQ predicate on the "uid" field.
-func UIDEQ(v uuid.UUID) predicate.Upload {
+// UUIDEQ applies the EQ predicate on the "uuid" field.
+func UUIDEQ(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUID), v))
+		s.Where(sql.EQ(s.C(FieldUUID), v))
 	})
 }
 
-// UIDNEQ applies the NEQ predicate on the "uid" field.
-func UIDNEQ(v uuid.UUID) predicate.Upload {
+// UUIDNEQ applies the NEQ predicate on the "uuid" field.
+func UUIDNEQ(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUID), v))
+		s.Where(sql.NEQ(s.C(FieldUUID), v))
 	})
 }
 
-// UIDIn applies the In predicate on the "uid" field.
-func UIDIn(vs ...uuid.UUID) predicate.Upload {
+// UUIDIn applies the In predicate on the "uuid" field.
+func UUIDIn(vs ...string) predicate.Upload {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUID), v...))
+		s.Where(sql.In(s.C(FieldUUID), v...))
 	})
 }
 
-// UIDNotIn applies the NotIn predicate on the "uid" field.
-func UIDNotIn(vs ...uuid.UUID) predicate.Upload {
+// UUIDNotIn applies the NotIn predicate on the "uuid" field.
+func UUIDNotIn(vs ...string) predicate.Upload {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUID), v...))
+		s.Where(sql.NotIn(s.C(FieldUUID), v...))
 	})
 }
 
-// UIDGT applies the GT predicate on the "uid" field.
-func UIDGT(v uuid.UUID) predicate.Upload {
+// UUIDGT applies the GT predicate on the "uuid" field.
+func UUIDGT(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUID), v))
+		s.Where(sql.GT(s.C(FieldUUID), v))
 	})
 }
 
-// UIDGTE applies the GTE predicate on the "uid" field.
-func UIDGTE(v uuid.UUID) predicate.Upload {
+// UUIDGTE applies the GTE predicate on the "uuid" field.
+func UUIDGTE(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUID), v))
+		s.Where(sql.GTE(s.C(FieldUUID), v))
 	})
 }
 
-// UIDLT applies the LT predicate on the "uid" field.
-func UIDLT(v uuid.UUID) predicate.Upload {
+// UUIDLT applies the LT predicate on the "uuid" field.
+func UUIDLT(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUID), v))
+		s.Where(sql.LT(s.C(FieldUUID), v))
 	})
 }
 
-// UIDLTE applies the LTE predicate on the "uid" field.
-func UIDLTE(v uuid.UUID) predicate.Upload {
+// UUIDLTE applies the LTE predicate on the "uuid" field.
+func UUIDLTE(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUID), v))
+		s.Where(sql.LTE(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDContains applies the Contains predicate on the "uuid" field.
+func UUIDContains(v string) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDHasPrefix applies the HasPrefix predicate on the "uuid" field.
+func UUIDHasPrefix(v string) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDHasSuffix applies the HasSuffix predicate on the "uuid" field.
+func UUIDHasSuffix(v string) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDEqualFold applies the EqualFold predicate on the "uuid" field.
+func UUIDEqualFold(v string) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDContainsFold applies the ContainsFold predicate on the "uuid" field.
+func UUIDContainsFold(v string) predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldUUID), v))
 	})
 }
 
@@ -550,6 +584,20 @@ func SizeLTE(v int) predicate.Upload {
 	})
 }
 
+// SizeIsNil applies the IsNil predicate on the "size" field.
+func SizeIsNil() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSize)))
+	})
+}
+
+// SizeNotNil applies the NotNil predicate on the "size" field.
+func SizeNotNil() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSize)))
+	})
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
@@ -632,6 +680,20 @@ func TitleHasPrefix(v string) predicate.Upload {
 func TitleHasSuffix(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldTitle), v))
+	})
+}
+
+// TitleIsNil applies the IsNil predicate on the "title" field.
+func TitleIsNil() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTitle)))
+	})
+}
+
+// TitleNotNil applies the NotNil predicate on the "title" field.
+func TitleNotNil() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTitle)))
 	})
 }
 
@@ -731,6 +793,20 @@ func DescriptionHasPrefix(v string) predicate.Upload {
 func DescriptionHasSuffix(v string) predicate.Upload {
 	return predicate.Upload(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldDescription), v))
+	})
+}
+
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldDescription)))
+	})
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.Upload {
+	return predicate.Upload(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldDescription)))
 	})
 }
 

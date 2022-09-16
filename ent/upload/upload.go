@@ -17,8 +17,8 @@ const (
 	FieldPlaylistID = "playlist_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldUID holds the string denoting the uid field in the database.
-	FieldUID = "uid"
+	// FieldUUID holds the string denoting the uuid field in the database.
+	FieldUUID = "uuid"
 	// FieldMimeType holds the string denoting the mime_type field in the database.
 	FieldMimeType = "mime_type"
 	// FieldSize holds the string denoting the size field in the database.
@@ -59,7 +59,7 @@ var Columns = []string{
 	FieldUserID,
 	FieldPlaylistID,
 	FieldName,
-	FieldUID,
+	FieldUUID,
 	FieldMimeType,
 	FieldSize,
 	FieldTitle,

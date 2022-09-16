@@ -11,7 +11,7 @@ import (
 func main() {
 
 	seed.Do(context.Background())
-
+	seed.DO(context.Background())
 	router := gin.Default()
 
 	api.RoutesPool(router)

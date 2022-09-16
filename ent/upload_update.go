@@ -15,7 +15,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // UploadUpdate is the builder for updating Upload entities.
@@ -49,9 +48,9 @@ func (uu *UploadUpdate) SetName(s string) *UploadUpdate {
 	return uu
 }
 
-// SetUID sets the "uid" field.
-func (uu *UploadUpdate) SetUID(u uuid.UUID) *UploadUpdate {
-	uu.mutation.SetUID(u)
+// SetUUID sets the "uuid" field.
+func (uu *UploadUpdate) SetUUID(s string) *UploadUpdate {
+	uu.mutation.SetUUID(s)
 	return uu
 }
 
@@ -68,9 +67,23 @@ func (uu *UploadUpdate) SetSize(i int) *UploadUpdate {
 	return uu
 }
 
+// SetNillableSize sets the "size" field if the given value is not nil.
+func (uu *UploadUpdate) SetNillableSize(i *int) *UploadUpdate {
+	if i != nil {
+		uu.SetSize(*i)
+	}
+	return uu
+}
+
 // AddSize adds i to the "size" field.
 func (uu *UploadUpdate) AddSize(i int) *UploadUpdate {
 	uu.mutation.AddSize(i)
+	return uu
+}
+
+// ClearSize clears the value of the "size" field.
+func (uu *UploadUpdate) ClearSize() *UploadUpdate {
+	uu.mutation.ClearSize()
 	return uu
 }
 
@@ -80,9 +93,37 @@ func (uu *UploadUpdate) SetTitle(s string) *UploadUpdate {
 	return uu
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (uu *UploadUpdate) SetNillableTitle(s *string) *UploadUpdate {
+	if s != nil {
+		uu.SetTitle(*s)
+	}
+	return uu
+}
+
+// ClearTitle clears the value of the "title" field.
+func (uu *UploadUpdate) ClearTitle() *UploadUpdate {
+	uu.mutation.ClearTitle()
+	return uu
+}
+
 // SetDescription sets the "description" field.
 func (uu *UploadUpdate) SetDescription(s string) *UploadUpdate {
 	uu.mutation.SetDescription(s)
+	return uu
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (uu *UploadUpdate) SetNillableDescription(s *string) *UploadUpdate {
+	if s != nil {
+		uu.SetDescription(*s)
+	}
+	return uu
+}
+
+// ClearDescription clears the value of the "description" field.
+func (uu *UploadUpdate) ClearDescription() *UploadUpdate {
+	uu.mutation.ClearDescription()
 	return uu
 }
 
@@ -229,11 +270,11 @@ func (uu *UploadUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: upload.FieldName,
 		})
 	}
-	if value, ok := uu.mutation.UID(); ok {
+	if value, ok := uu.mutation.UUID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: upload.FieldUID,
+			Column: upload.FieldUUID,
 		})
 	}
 	if value, ok := uu.mutation.MimeType(); ok {
@@ -257,6 +298,12 @@ func (uu *UploadUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: upload.FieldSize,
 		})
 	}
+	if uu.mutation.SizeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: upload.FieldSize,
+		})
+	}
 	if value, ok := uu.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -264,10 +311,22 @@ func (uu *UploadUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: upload.FieldTitle,
 		})
 	}
+	if uu.mutation.TitleCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: upload.FieldTitle,
+		})
+	}
 	if value, ok := uu.mutation.Description(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: upload.FieldDescription,
+		})
+	}
+	if uu.mutation.DescriptionCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: upload.FieldDescription,
 		})
 	}
@@ -385,9 +444,9 @@ func (uuo *UploadUpdateOne) SetName(s string) *UploadUpdateOne {
 	return uuo
 }
 
-// SetUID sets the "uid" field.
-func (uuo *UploadUpdateOne) SetUID(u uuid.UUID) *UploadUpdateOne {
-	uuo.mutation.SetUID(u)
+// SetUUID sets the "uuid" field.
+func (uuo *UploadUpdateOne) SetUUID(s string) *UploadUpdateOne {
+	uuo.mutation.SetUUID(s)
 	return uuo
 }
 
@@ -404,9 +463,23 @@ func (uuo *UploadUpdateOne) SetSize(i int) *UploadUpdateOne {
 	return uuo
 }
 
+// SetNillableSize sets the "size" field if the given value is not nil.
+func (uuo *UploadUpdateOne) SetNillableSize(i *int) *UploadUpdateOne {
+	if i != nil {
+		uuo.SetSize(*i)
+	}
+	return uuo
+}
+
 // AddSize adds i to the "size" field.
 func (uuo *UploadUpdateOne) AddSize(i int) *UploadUpdateOne {
 	uuo.mutation.AddSize(i)
+	return uuo
+}
+
+// ClearSize clears the value of the "size" field.
+func (uuo *UploadUpdateOne) ClearSize() *UploadUpdateOne {
+	uuo.mutation.ClearSize()
 	return uuo
 }
 
@@ -416,9 +489,37 @@ func (uuo *UploadUpdateOne) SetTitle(s string) *UploadUpdateOne {
 	return uuo
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (uuo *UploadUpdateOne) SetNillableTitle(s *string) *UploadUpdateOne {
+	if s != nil {
+		uuo.SetTitle(*s)
+	}
+	return uuo
+}
+
+// ClearTitle clears the value of the "title" field.
+func (uuo *UploadUpdateOne) ClearTitle() *UploadUpdateOne {
+	uuo.mutation.ClearTitle()
+	return uuo
+}
+
 // SetDescription sets the "description" field.
 func (uuo *UploadUpdateOne) SetDescription(s string) *UploadUpdateOne {
 	uuo.mutation.SetDescription(s)
+	return uuo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (uuo *UploadUpdateOne) SetNillableDescription(s *string) *UploadUpdateOne {
+	if s != nil {
+		uuo.SetDescription(*s)
+	}
+	return uuo
+}
+
+// ClearDescription clears the value of the "description" field.
+func (uuo *UploadUpdateOne) ClearDescription() *UploadUpdateOne {
+	uuo.mutation.ClearDescription()
 	return uuo
 }
 
@@ -595,11 +696,11 @@ func (uuo *UploadUpdateOne) sqlSave(ctx context.Context) (_node *Upload, err err
 			Column: upload.FieldName,
 		})
 	}
-	if value, ok := uuo.mutation.UID(); ok {
+	if value, ok := uuo.mutation.UUID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: upload.FieldUID,
+			Column: upload.FieldUUID,
 		})
 	}
 	if value, ok := uuo.mutation.MimeType(); ok {
@@ -623,6 +724,12 @@ func (uuo *UploadUpdateOne) sqlSave(ctx context.Context) (_node *Upload, err err
 			Column: upload.FieldSize,
 		})
 	}
+	if uuo.mutation.SizeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: upload.FieldSize,
+		})
+	}
 	if value, ok := uuo.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -630,10 +737,22 @@ func (uuo *UploadUpdateOne) sqlSave(ctx context.Context) (_node *Upload, err err
 			Column: upload.FieldTitle,
 		})
 	}
+	if uuo.mutation.TitleCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: upload.FieldTitle,
+		})
+	}
 	if value, ok := uuo.mutation.Description(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: upload.FieldDescription,
+		})
+	}
+	if uuo.mutation.DescriptionCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: upload.FieldDescription,
 		})
 	}

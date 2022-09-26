@@ -10,8 +10,9 @@ import (
 
 func main() {
 
-	seed.Do(context.Background())
-	seed.DO(context.Background())
+	// seed.SeedUser(context.Background())
+	seed.SeedPlaylist(context.Background())
+	// seed.SeedUpload(context.Background())
 	router := gin.Default()
 
 	api.RoutesPool(router)

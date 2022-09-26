@@ -3,145 +3,54 @@ package seed
 import (
 	"context"
 	"education/config"
+	"education/ent"
 	"fmt"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/mitchellh/mapstructure"
 )
 
-func Do(ctx context.Context) error {
+func SeedUser(ctx context.Context) error {
+	var fileJSON []gin.H
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-	_, err := config.Client.User.
-		Create().
-		SetName("Mahmoud").
-		SetChannelName("Droos").
-		SetEmail("mhdshaikh20403@gmail.com").
-		SetSpecialist("Feqh").
-		SetAge(26).
-		SetPhone("01152569522").
-		SetLanguage("Arabic").
-		SetCountry("Cairo, Egypt").
-		SetShorBio("Channel To Teach You the Feqh Subject.").
-		Save(ctx)
+	file, err := os.ReadFile("/home/mohammed/Desktop/education/public/user.json")
 
 	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
+		fmt.Println(err.Error())
+	}
+	fmt.Println("Successfully Opened user.json")
+
+	err = json.Unmarshal(file, &fileJSON)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
-	_, err = config.Client.User.
-		Create().
-		SetName("Mohammed").
-		SetChannelName("Sona Channel").
-		SetEmail("sonah@gmail.com").
-		SetSpecialist("Sona").
-		SetAge(39).
-		SetPhone("01254869812").
-		SetLanguage("Arabic").
-		SetCountry("Alex, Egypt").
-		SetShorBio("Channel To Teach You the Sona Subject.").
-		Save(ctx)
+	bulk := make([]*ent.UserCreate, len(fileJSON))
+	for i, u := range fileJSON {
+		var user ent.User
+		err := mapstructure.Decode(u, &user)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		bulk[i] = config.Client.User.Create().
+			SetName(user.Name).
+			SetChannelName(user.ChannelName).
+			SetEmail(user.Email).
+			SetSpecialist(user.Specialist).
+			SetAge(user.Age).
+			SetPhone(user.Phone).
+			SetLanguage(user.Language).
+			SetCountry(user.Country).
+			SetShorBio(user.ShorBio)
+	}
+	_, err = config.Client.User.CreateBulk(bulk...).Save(ctx)
 
 	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
+		return fmt.Errorf("creating Users: %w", err)
 	}
 
-	_, err = config.Client.User.
-		Create().
-		SetName("Ibrahim").
-		SetChannelName("Akeda Channel").
-		SetEmail("akeda@gmail.com").
-		SetSpecialist("Akeda").
-		SetAge(22).
-		SetPhone("01587945632").
-		SetLanguage("Arabic").
-		SetCountry("Alsharkeya, Egypt").
-		SetShorBio("Channel To Teach You the Akeda Subject.").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
-	}
-
-	_, err = config.Client.User.
-		Create().
-		SetName("Sayed").
-		SetChannelName("Nahw Channel").
-		SetEmail("nahw@gmail.com").
-		SetSpecialist("Feqh").
-		SetAge(29).
-		SetPhone("01547856985").
-		SetLanguage("Arabic").
-		SetCountry("Elmonofia, Egypt").
-		SetShorBio("Channel To Teach You the Nahw Subject.").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
-	}
-
-	_, err = config.Client.User.
-		Create().
-		SetName("Ahmed").
-		SetChannelName("Qouran").
-		SetEmail("qouran@gmail.com").
-		SetSpecialist("Qouran").
-		SetAge(40).
-		SetPhone("01078469532").
-		SetLanguage("Arabic").
-		SetCountry("Cairo, Egypt").
-		SetShorBio("Channel To Teach You the Qouran.").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
-	}
-
-	_, err = config.Client.User.
-		Create().
-		SetName("Abdo").
-		SetChannelName("General").
-		SetEmail("general@gmail.com").
-		SetSpecialist("General").
-		SetAge(36).
-		SetPhone("01247189635").
-		SetLanguage("Arabic").
-		SetCountry("Cairo, Egypt").
-		SetShorBio("Channel To Teach You the Genaral Subjects.").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
-	}
-
-	_, err = config.Client.User.
-		Create().
-		SetName("Ali").
-		SetChannelName("Elsharh").
-		SetEmail("aliabdo@gmail.com").
-		SetSpecialist("General").
-		SetAge(33).
-		SetPhone("01184596214").
-		SetLanguage("Arabic").
-		SetCountry("Cairo, Egypt").
-		SetShorBio("Channel To Teach You the Feqh Subject.").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
-	}
-
-	_, err = config.Client.User.
-		Create().
-		SetName("Mahmoud").
-		SetChannelName("Droos Online").
-		SetEmail("droosonline@gmail.com").
-		SetSpecialist("General").
-		SetAge(50).
-		SetPhone("0125874696").
-		SetLanguage("Arabic").
-		SetCountry("Elgharbia, Egypt").
-		SetShorBio("Channel To Teach You the General Subjects.").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User: %w", err)
-	}
 	return nil
 }

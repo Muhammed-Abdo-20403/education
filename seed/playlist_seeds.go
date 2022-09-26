@@ -3,58 +3,41 @@ package seed
 import (
 	"context"
 	"education/config"
+	"education/ent"
 	"fmt"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/mitchellh/mapstructure"
 )
 
-func DO(ctx context.Context) error {
-	_, err := config.Client.Playlist.
-		Create().
-		SetUserID(1).
-		SetTitle("videos palylist").
-		Save(ctx)
-
+func SeedPlaylist(ctx context.Context) error {
+	var fileJSON []gin.H
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	file, err := os.ReadFile("/home/mohammed/Desktop/education/public/playlist.json")
 	if err != nil {
-		return fmt.Errorf("creating User %w", err)
+		fmt.Println(err.Error())
 	}
 
-	_, err = config.Client.Playlist.
-		Create().
-		SetUserID(2).
-		SetTitle("videos palylist").
-		Save(ctx)
-
+	err = json.Unmarshal(file, &fileJSON)
 	if err != nil {
-		return fmt.Errorf("creating User %w", err)
+		fmt.Println(err.Error())
 	}
-
-	_, err = config.Client.Playlist.
-		Create().
-		SetUserID(3).
-		SetTitle("videos palylist").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User %w", err)
+	bulk := make([]*ent.PlaylistCreate, len(fileJSON))
+	for i, p := range fileJSON {
+		var playlist ent.Playlist
+		err := mapstructure.Decode(p, &playlist)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		bulk[i] = config.Client.Playlist.Create().
+			SetUserID(playlist.UserID).
+			SetTitle(playlist.Title)
 	}
-
-	_, err = config.Client.Playlist.
-		Create().
-		SetUserID(4).
-		SetTitle("videos palylist").
-		Save(ctx)
-
+	_, err = config.Client.Playlist.CreateBulk(bulk...).Save(ctx)
 	if err != nil {
-		return fmt.Errorf("creating User %w", err)
-	}
-
-	_, err = config.Client.Playlist.
-		Create().
-		SetUserID(5).
-		SetTitle("videos palylist").
-		Save(ctx)
-
-	if err != nil {
-		return fmt.Errorf("creating User %w", err)
+		return fmt.Errorf("creating Playlist %w", err)
 	}
 
 	return nil
